@@ -28,7 +28,6 @@ class DefaultHeader extends Component {
             <NavLink href="/">Dashboard</NavLink>
           </NavItem>
         </Nav>
-        <AppAsideToggler className="d-md-down-none" />
       </React.Fragment>
     );
   }
