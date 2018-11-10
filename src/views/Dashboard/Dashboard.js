@@ -25,11 +25,18 @@ import {CustomTooltips} from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import {getStyle, hexToRgba} from '@coreui/coreui/dist/js/coreui-utilities'
 import pattern from 'patternomaly';
 
+import 'react-widgets/dist/css/react-widgets.css';
+
+import { render } from 'react-dom';
+import DropdownList from 'react-widgets/lib/DropdownList';
+
 const brandPrimary = getStyle('--primary')
 const brandSuccess = getStyle('--success')
 const brandInfo = getStyle('--info')
 const brandWarning = getStyle('--warning')
 const brandDanger = getStyle('--danger')
+
+
 
 const mainAPI = "http://localhost:3001"
 //const mainAPI = "https://HackathonBACK2018--ghzatomic.repl.co"
@@ -54,8 +61,29 @@ function random(min, max) {
 }
 
 class Dashboard extends Component {
-  buscaGraficoSentimentos = () => {
-    fetch(mainAPI + "/graficos/grafico_sentimentos").then(res => res.json())
+
+  buscaUsuarios = () => {
+
+    fetch(mainAPI + "/usuarios").then(res => res.json())
+    .then(
+      (result) => {
+        this.setState({
+          dataUsuarios: result.data
+        });
+      },
+      (error) => {
+        this.setState({
+          isLoadedHistorico: false,
+          error
+        });
+      }
+    )
+
+
+  }
+
+  buscaGraficoSentimentos = (value) => {
+    fetch(mainAPI + "/graficos/grafico_sentimentos/"+value).then(res => res.json())
     .then(
       (result) => {
         this.setState({
@@ -86,8 +114,8 @@ class Dashboard extends Component {
     )
   }
 
-  buscaGraficoVariacao = () => {
-    fetch(mainAPI + "/graficos/data_sentimento").then(res => res.json())
+  buscaGraficoVariacao = (value) => {
+    fetch(mainAPI + "/graficos/data_sentimento/"+value).then(res => res.json())
     .then(
       (result) => {
         this.setState({
@@ -172,12 +200,28 @@ class Dashboard extends Component {
       isLoadedHistorico: false,
       dataHistorico: [],
       dataVariacao: [],
+      dataUsuarios: [],
     };
   }
 
+  onChangeGraficoSentimentos = ( value )=>{
+    /*this.setState({
+      usuarioGraficoVariacaoSelecionado: value
+    });*/
+    this.buscaGraficoSentimentos(value);
+  }
+
+  onChangeGraficoVariacao = ( value )=>{
+    /*this.setState({
+      usuarioGraficoVariacaoSelecionado: value
+    });*/
+    this.buscaGraficoVariacao(value);
+  }
+
   componentDidMount() {
-    this.buscaGraficoSentimentos();
-    this.buscaGraficoVariacao();
+    //this.buscaGraficoSentimentos();
+    //this.buscaGraficoVariacao();
+    this.buscaUsuarios();
   }
 
   toggle() {
@@ -203,7 +247,7 @@ class Dashboard extends Component {
               <CardBody>
                 <Row>
                   <Col sm="5">
-                    <CardTitle className="mb-0">Sentimentos gerais</CardTitle>
+                    <CardTitle className="mb-0">Sentimentos gerais <DropdownList data={this.state.dataUsuarios} onChange={value => this.onChangeGraficoSentimentos(value)}/> </CardTitle>
                   </Col>
                 </Row>
                 <div className="chart-wrapper"
@@ -223,7 +267,7 @@ class Dashboard extends Component {
               <CardBody>
                 <Row>
                   <Col sm="5">
-                    <CardTitle className="mb-0">Variação de sentimentos</CardTitle>
+                    <CardTitle className="mb-0">Variação de sentimentos <DropdownList data={this.state.dataUsuarios} onChange={value => this.onChangeGraficoVariacao(value)}/> </CardTitle>
                   </Col>
                 </Row>
                 <div className="chart-wrapper"
